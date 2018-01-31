@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Little helper command for packaging an ALGO VPN user's credentials
+# It will package all user-specific files and the VPN's certificate
+# TODO Include a small README linking to client setup instructions
+# TODO Possibly a bad idea? but maybe add param to package user password
+
+set -o errexit
+set -o pipefail
+set -o nounset
+if [[ "${DEBUG:-false}" == "true" ]]; then
+    set -o xtrace
+fi
+
+usage() {
+    echo "Usage: $0 <username>"
+
+    exit 1
+}
+
+main () {
+    if [[ "$#" -lt 1 ]]; then
+	usage
+    fi
+    
+    declare username="$1"
+
+    pushd ~ubuntu/algo/configs > /dev/null
+    find . -name "*${username}*" -exec tar cf ~ubuntu/"$username".tar \
+	 ./35.182.10.64/cacert.pem {} \+
+    popd > /dev/null
+
+    echo "$username has been generated!"
+}
+
+main "$@"
